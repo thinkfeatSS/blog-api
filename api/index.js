@@ -40,7 +40,7 @@ app.use(limiter);
 // app.use('/api', userRouter);
 
 // Default route
-app.get('/a', (req, res) => {
+app.get('/', (req, res) => {
   res.send('Welcome to the Blog Social App API');
   console.log('Welcome to the Blog Social App API');
 });
@@ -67,9 +67,9 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Export the app as a serverless function for Vercel
-// module.exports = app; 
+module.exports = app; 
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// });
