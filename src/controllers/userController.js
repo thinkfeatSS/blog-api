@@ -1,33 +1,65 @@
-const bcrypt = require('bcryptjs');
+const pool = require('../config/db');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const connection = require('../config/db');
 
-// Register a new user
-exports.register = (req, res) => {
-    const { username, email, password } = req.body;
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const query = `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`;
+// User registration
+exports.registerUser = async (req, res) => {
+  const { name, email, password, role = 'user'} = req.body;
 
-    connection.query(query, [username, email, hashedPassword], (err, results) => {
-        if (err) return res.status(500).send("Error registering user.");
-        res.status(201).send("User registered successfully.");
+  try {
+    // Check if the user already exists
+    const [existingUser] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+
+    // Hash the password using bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new user into the database
+    const query = 'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)';
+    const [result] = await pool.execute(query, [name, email, hashedPassword, role]);
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      userId: result.insertId,
     });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
+
 // User login
-exports.login = (req, res) => {
-    const { email, password } = req.body;
-    const query = `SELECT * FROM users WHERE email = ?`;
+exports.loginUser = async (req, res) => {
+  const { email, password } = req.body;
 
-    connection.query(query, [email], (err, results) => {
-        if (err || results.length === 0) return res.status(404).send("User not found.");
-        
-        const user = results[0];
-        const validPassword = bcrypt.compareSync(password, user.password);
+  try {
+    // Check if the user exists
+    const [user] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (user.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid email or password' });
+    }
 
-        if (!validPassword) return res.status(400).send("Invalid password.");
+    // Check if the password matches
+    const validPassword = await bcrypt.compare(password, user[0].password);
+    if (!validPassword) {
+      return res.status(400).json({ success: false, message: 'Invalid email or password' });
+    }
 
-        const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
+    // Create a JWT token
+    const token = jwt.sign({ id: user[0].id, email: user[0].email, role: user[0].role }, process.env.JWT_SECRET, {
+      expiresIn: '1h', // Token expires in 1 hour
     });
+
+    res.status(200).json({
+      success: true,
+      token,
+      message: 'Login successful',
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error'});
+  }
 };
