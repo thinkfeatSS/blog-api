@@ -1,20 +1,14 @@
 const express = require('express');
+const { searchByKeyword, searchByHashtag, searchByUser } = require('../controllers/searchController');
 const router = express.Router();
-const mehfilController = require('../controllers/mehfilController');
 
-// Create a new mehfil
-router.post('/mehfils', mehfilController.createMehfil);
+// Search posts by keyword (title or content)
+router.get('/posts', searchByKeyword);
 
-// Get all mehfils
-router.get('/mehfils', mehfilController.getAllMehfils);
+// Search posts by hashtag
+router.get('/posts/hashtag', searchByHashtag);
 
-// Get a single mehfil by ID
-router.get('/mehfils/:id', mehfilController.getMehfilById);
-
-// Update a mehfil by ID
-router.put('/mehfils/:id', mehfilController.updateMehfil);
-
-// Delete a mehfil by ID
-router.delete('/mehfils/:id', mehfilController.deleteMehfil);
+// Search posts by user
+router.get('/posts/user', searchByUser);
 
 module.exports = router;

@@ -1,115 +1,75 @@
 const pool = require('../config/db');
 
-exports.getPoem = async (req, res) => {
-    try {
-        // Query to get all poems
-        const [rows] = await pool.query('SELECT * FROM poems');
-    
-        // Send the result back
-        res.status(200).json({
-          success: true,
-          data: rows,
-        });
-      } catch (error) {
-        console.error('Error fetching poems:', error);
-        res.status(500).json({ success: false, message: 'Server error, unable to fetch poems' });
-      }
-};
-exports.getPoemById = async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      // Query to get poem by ID
-      const [rows] = await pool.query('SELECT * FROM poems WHERE id = ?', [id]);
-  
-      // Check if poem exists
-      if (rows.length === 0) {
-        return res.status(404).json({ success: false, message: `No poem found with id: ${id}` });
-      }
-  
-      // Return the poem data
-      res.status(200).json({
-        success: true,
-        data: rows[0],  // Since we expect only one row
-      });
-    } catch (error) {
-      console.error('Error fetching poem:', error);
-      res.status(500).json({ success: false, message: 'Server error, unable to fetch poem' });
-    }
-
-}
-exports.createPoem = async (req, res) => {
-    // Create a new poem
-  const { letter, content, poet_id } = req.body;
+// Search posts by keyword (title or content)
+exports.searchByKeyword = async (req, res) => {
+  const { keyword } = req.query; // Get the search keyword from query params
 
   try {
-    // Validate input
-    if (!letter || !content || !poet_id) {
-      return res.status(400).json({ success: false, message: 'Please provide letter, content, and poet_id' });
+    const [posts] = await pool.query(
+      'SELECT p.id, p.title, p.content, p.created_at, u.username ' +
+      'FROM posts p ' +
+      'JOIN users u ON p.user_id = u.id ' +
+      'WHERE p.title LIKE ? OR p.content LIKE ?',
+      [`%${keyword}%`, `%${keyword}%`]
+    );
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: 'No posts found for this keyword' });
     }
 
-    // Insert the new poem into the database
-    const query = 'INSERT INTO poems (letter, content, poet_id) VALUES (?, ?, ?)';
-    const [result] = await pool.execute(query, [letter, content, poet_id]);
-
-    // Respond with success
-    res.status(201).json({
-      success: true,
-      message: 'Poem created successfully',
-      poemId: result.insertId,
-    });
+    res.status(200).json(posts);
   } catch (error) {
-    console.error('Error creating poem:', error);
-    res.status(500).json({ success: false, message: 'Server error, unable to create poem' });
+    console.error('Error searching posts by keyword:', error.message);
+    res.status(500).json({ error: 'An unexpected error occurred' });
   }
 };
-exports.updatePoem = async (req, res) => {
-// Update a poem by ID
-    const { id } = req.params;
-    const { letter, content, poet_id } = req.body;
 
-    try {
-    // Validate input
-    if (!letter || !content || !poet_id) {
-        return res.status(400).json({ success: false, message: 'Please provide letter, content, and poet_id' });
+// Search posts by hashtag
+exports.searchByHashtag = async (req, res) => {
+  const { hashtag } = req.query; // Get the hashtag from query params
+
+  try {
+    const [posts] = await pool.query(
+      'SELECT p.id, p.title, p.content, p.created_at, u.username, h.name AS hashtag ' +
+      'FROM posts p ' +
+      'JOIN users u ON p.user_id = u.id ' +
+      'JOIN post_hashtags ph ON p.id = ph.post_id ' +
+      'JOIN hashtags h ON ph.hashtag_id = h.id ' +
+      'WHERE h.name = ?',
+      [hashtag]
+    );
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: 'No posts found for this hashtag' });
     }
 
-    // Update the poem in the database
-    const query = 'UPDATE poems SET letter = ?, content = ?, poet_id = ? WHERE id = ?';
-    const [result] = await pool.execute(query, [letter, content, poet_id, id]);
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error searching posts by hashtag:', error.message);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+};
 
-    // Check if the poem was updated
-    if (result.affectedRows === 0) {
-        return res.status(404).json({ success: false, message: `No poem found with id: ${id}` });
+// Search posts by user
+exports.searchByUser = async (req, res) => {
+  const { username } = req.query; // Get the username from query params
+
+  try {
+    const [posts] = await pool.query(
+      'SELECT p.id, p.title, p.content, p.created_at, u.username ' +
+      'FROM posts p ' +
+      'JOIN users u ON p.user_id = u.id ' +
+      'WHERE u.username = ?',
+      [username]
+    );
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: 'No posts found for this user' });
     }
 
-    // Respond with success
-    res.status(200).json({ success: true, message: `Poem with id: ${id} updated successfully` });
-    } catch (error) {
-    console.error('Error updating poem:', error);
-    res.status(500).json({ success: false, message: 'Server error, unable to update poem' });
-    }};
-exports.deletePoem = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      // Delete the poem from the database
-      const query = 'DELETE FROM poems WHERE id = ?';
-      const [result] = await pool.execute(query, [id]);
-  
-      // Check if the poem was deleted
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ success: false, message: `No poem found with id: ${id}` });
-      }
-  
-      // Respond with success
-      res.status(200).json({ success: true, message: `Poem with id: ${id} deleted successfully` });
-    } catch (error) {
-      console.error('Error deleting poem:', error);
-      res.status(500).json({ success: false, message: 'Server error, unable to delete poem' });
-    }
-}
-
-// Get a single poem by ID
-  
-
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error searching posts by user:', error.message);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+};
