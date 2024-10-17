@@ -31,6 +31,7 @@ app.use(compression());
 app.use(helmet());
 app.use(limiter);
 
+
 // API routes
 // app.use('/api', mehfilRouter);
 // app.use('/api', alphabetRouter);
@@ -39,13 +40,13 @@ app.use(limiter);
 // app.use('/api', poetRouter);
 // app.use('/api', userRouter);
 
-// Default route
-app.get('/', (req, res) => {
-  res.send('Welcome to the Blog Social App API');
-  console.log('Welcome to the Blog Social App API');
-});
+// // Default route
+// app.get('/', (req, res) => {
+//   res.send('Welcome to the Blog Social App API');
+//   console.log('Welcome to the Blog Social App API');
+// });
 
-// Default route for undefined routes (404)
+// // Default route for undefined routes (404)
 app.use((req, res) => {
   console.error(`404 Error - Route not found: ${req.method} ${req.url}`);
   res.status(404).json({ error: 'Route not found' });
