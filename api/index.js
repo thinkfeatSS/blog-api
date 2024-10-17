@@ -51,7 +51,7 @@ app.use('/api/search', searchRoutes);
 
 // Error handling for unhandled routes
 app.use((req, res) => {
-  console.log(req)
+  // console.log(req)
   res.status(404).json({ message: 'Route not found' });
 });
 
