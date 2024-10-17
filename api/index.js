@@ -7,13 +7,17 @@ const cors = require('cors'); // Import the CORS middleware
 // Load environment variables
 require('dotenv').config();
 
-// import router
-// const poetRouter = require('../src/routes/poetRouter');
-// const userRouter = require('../src/routes/userRoutes');
-// const alphabetRouter = require('../src/routes/alphabetRouter');
-// const kalamRouter = require('../src/routes/kalamRouter');
-// const poemRouter = require('../src/routes/poemRouter');
-// const mehfilRouter = require('../src/routes/mehfilRouter');
+
+// Import routes
+const authRoutes = require('../src/routes/authRoutes');
+const postRoutes = require('../src/routes/postRoutes');
+const commentRoutes = require('../src/routes/commentRoutes');
+const followRoutes = require('../src/routes/followRoutes');
+const likeRoutes = require('../src/routes/likeRoutes');
+const hashtagRoutes = require('../src/routes/hashtagRoutes');
+const adminRoutes = require('../src/routes/adminRoutes');
+const analyticsRoutes = require('../src/routes/analyticsRoutes');
+const savedPostRoutes = require('../src/routes/savedPostRoutes');
 
 // Create an Express instance
 const app = express();
@@ -30,41 +34,28 @@ app.use(express.json());
 app.use(compression());
 app.use(helmet());
 app.use(limiter);
+app.use(morgan('dev'));  // HTTP request logger
 
+// Use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/follows', followRoutes);
+app.use('/api/likes', likeRoutes);
+app.use('/api/hashtags', hashtagRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/savedposts', savedPostRoutes);
 
-// API routes
-// app.use('/api', mehfilRouter);
-// app.use('/api', alphabetRouter);
-// app.use('/api', kalamRouter);
-// app.use('/api', poemRouter);
-// app.use('/api', poetRouter);
-// app.use('/api', userRouter);
-
-// // Default route
-// app.get('/', (req, res) => {
-//   res.send('Welcome to the Blog Social App API');
-//   console.log('Welcome to the Blog Social App API');
-// });
-
-// // Default route for undefined routes (404)
+// Error handling for unhandled routes
 app.use((req, res) => {
-  console.error(`404 Error - Route not found: ${req.method} ${req.url}`);
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ message: 'Route not found' });
 });
 
-app.use(errorHandler);
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  server.close(() => {
-    process.exit(1);  // Exit after closing the server
-  });
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  server.close(() => {
-    process.exit(1);  // Exit after closing the server
-  });
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // Export the app as a serverless function for Vercel
