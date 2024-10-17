@@ -1,5 +1,5 @@
 const express = require('express');
-const { searchByKeyword, searchByHashtag, searchByUser } = require('../controllers/b');
+const { searchByKeyword, searchByHashtag, searchByUser } = require('../controllers/searchController');
 const router = express.Router();
 
 // Search posts by keyword (title or content)
