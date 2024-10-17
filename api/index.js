@@ -2,7 +2,7 @@ const express = require('express');
 const compression = require('compression');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const errorHandler = require('../src/middleware/errorHandler');
+// const errorHandler = require('../src/middlewares/errorHandler');
 const cors = require('cors'); // Import the CORS middleware
 // Load environment variables
 require('dotenv').config();
