@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors'); // Import the CORS middleware
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');  // Import cookie-parser
+
 // const errorHandler = require('../src/middlewares/errorHandler');
 // Load environment variables
 require('dotenv').config();
@@ -36,6 +38,7 @@ app.use(compression());
 app.use(helmet());
 app.use(limiter);
 app.use(morgan('dev'));  // HTTP request logger
+app.use(cookieParser()); 
 
 // Use routes
 app.use('/api/auth', authRoutes);
