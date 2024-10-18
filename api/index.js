@@ -68,6 +68,12 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    return res.status(401).json({ message: 'Invalid or missing token' });
+  }
+  res.status(500).json({ error: 'Something went wrong' });
+});
 // Export the app as a serverless function for Vercel
 module.exports = app; 
 
