@@ -86,3 +86,18 @@ exports.logout = (req, res) => {
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
+// Check if user is authenticated
+exports.me = (req, res) => {
+  const token = req.cookies.jwt;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ id: decoded.id, username: decoded.username, role: decoded.role });
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
