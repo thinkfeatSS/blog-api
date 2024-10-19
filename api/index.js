@@ -31,7 +31,12 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 //   max: 100, // limit each IP to 100 requests per windowMs
 // });
 // Enable CORS for all origins (allow cross-origin requests)
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:3000', // Allow this origin only
+  credentials: true,              // Allow cookies and credentials
+  optionsSuccessStatus: 200        // Some legacy browsers choke on 204
+};
+app.use(cors(corsOptions));
 // Middleware to parse JSON requests
 app.use(express.json());
 app.use(compression());
