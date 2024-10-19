@@ -36,18 +36,12 @@ const allowedDomains = [
   'https://loomdo.vercel.app/',  // Production domain
 ];
 
+// Dynamically allow all origins and credentials
 const corsOptions = {
   origin: function (origin, callback) {
-    // If the request comes from an allowed domain or no origin (Electron apps may not have origin)
-    if (!origin || allowedDomains.indexOf(origin) !== -1) {
-      callback(null, true);  // Allow the request
-    } else {
-      callback(new Error('Not allowed by CORS'));  // Block the request
-    }
+    callback(null, origin);  // Allow all origins dynamically
   },
-  // origin: 'http://localhost:3000', // Allow this origin only
-  credentials: true,              // Allow cookies and credentials
-  optionsSuccessStatus: 200        // Some legacy browsers choke on 204
+  credentials: true,  // Allow credentials (cookies, authorization headers)
 };
 app.use(cors(corsOptions));
 // Middleware to parse JSON requests
