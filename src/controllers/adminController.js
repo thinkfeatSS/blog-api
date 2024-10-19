@@ -14,3 +14,13 @@ exports.getUserStats = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch stats' });
   }
 };
+
+exports.updateUserRole = async (req, res) => {
+  const { userId, newRole } = req.body;
+  try {
+    await pool.query('UPDATE users SET role = ? WHERE id = ?', [newRole, userId]);
+    res.status(200).json({ message: 'User role updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update user role' });
+  }
+};
