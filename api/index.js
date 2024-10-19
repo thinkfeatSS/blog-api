@@ -31,7 +31,20 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 //   max: 100, // limit each IP to 100 requests per windowMs
 // });
 // Enable CORS for all origins (allow cross-origin requests)
+const allowedDomains = [
+  'http://localhost:3000',  // Electron app (running locally)
+  'https://loomdo.vercel.app/',  // Production domain
+];
+
 const corsOptions = {
+  origin: function (origin, callback) {
+    // If the request comes from an allowed domain or no origin (Electron apps may not have origin)
+    if (!origin || allowedDomains.indexOf(origin) !== -1) {
+      callback(null, true);  // Allow the request
+    } else {
+      callback(new Error('Not allowed by CORS'));  // Block the request
+    }
+  },
   // origin: 'http://localhost:3000', // Allow this origin only
   credentials: true,              // Allow cookies and credentials
   optionsSuccessStatus: 200        // Some legacy browsers choke on 204
