@@ -1,7 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+// const rateLimit = require('express-rate-limit');
 const cors = require('cors'); // Import the CORS middleware
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');  // Import cookie-parser
@@ -26,10 +26,10 @@ const searchRoutes = require('../src/routes/searchRoutes');
 const app = express();
 app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklocal, uniquelocal' : 'loopback');
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // limit each IP to 100 requests per windowMs
+// });
 // Enable CORS for all origins (allow cross-origin requests)
 app.use(cors());
 // Middleware to parse JSON requests
