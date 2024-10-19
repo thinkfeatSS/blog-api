@@ -32,7 +32,7 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 // });
 // Enable CORS for all origins (allow cross-origin requests)
 const corsOptions = {
-  origin: 'http://localhost:3000', // Allow this origin only
+  // origin: 'http://localhost:3000', // Allow this origin only
   credentials: true,              // Allow cookies and credentials
   optionsSuccessStatus: 200        // Some legacy browsers choke on 204
 };
