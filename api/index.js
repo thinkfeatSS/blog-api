@@ -36,7 +36,7 @@ app.use(cors());
 app.use(express.json());
 app.use(compression());
 app.use(helmet());
-app.use(limiter);
+// app.use(limiter);
 app.use(morgan('dev'));  // HTTP request logger
 app.use(cookieParser()); 
 
