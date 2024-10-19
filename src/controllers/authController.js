@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
       "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
       [username, email, hashedPassword]
     );
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ error: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ error: "User registration failed" });
   }
