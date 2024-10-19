@@ -62,7 +62,8 @@ exports.login = async (req, res) => {
       httpOnly: true, // Cookie cannot be accessed via JavaScript (helps mitigate XSS)
       secure: process.env.NODE_ENV === "production", // Cookie is only sent over HTTPS in production
       maxAge: 3600000, // Cookie expires in 1 hour
-      sameSite: "strict", // Helps protect against CSRF attacks
+      sameSite: 'None', 
+      // sameSite: "strict", // Helps protect against CSRF attacks
     };
 
     // Set the cookie in the response
