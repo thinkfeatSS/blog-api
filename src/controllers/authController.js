@@ -81,10 +81,7 @@ exports.login = async (req, res) => {
 
 // Logout user by clearing the cookie
 exports.logout = (req, res) => {
-  res.cookie("jwt", "", {
-    httpOnly: true,
-    expires: new Date(0), // Expire the cookie immediately
-  });
+  res.clearCookie('jwt');
   res.status(200).json({ message: "Logged out successfully" });
 };
 // Check if user is authenticated
