@@ -35,13 +35,13 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 
 // Dynamically allow all origins and credentials
 const corsOptions = {
-  origin: "*",
+  origin: true,
   credentials: true,  // Allow credentials (cookies, authorization headers)
 };
 app.use(cors(corsOptions));
 // Middleware to parse JSON requests
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(compression());
 app.use(helmet());
 // app.use(limiter);
