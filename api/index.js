@@ -33,26 +33,14 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 // Enable CORS for all origins (allow cross-origin requests)
 
 // Define allowed origins
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://loomdo.vercel.app/'
-];
-// Dynamically allow all origins and credentials
-// CORS configuration with dynamic origin check
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // Allow credentials (cookies, auth headers)
-};
+// Set up CORS with specific origin and credentials enabled
+app.use(cors({
+  origin: 'https://loomdo.vercel.app',  // Allow only this origin
+  credentials: true                     // Allow cookies and credentials
+}));
 
-app.use(cors(corsOptions));
+// Enable preflight response handling for all routes
+app.options('*', cors());
 // Middleware to parse JSON requests
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({limit: '500mb', extended: true}));
