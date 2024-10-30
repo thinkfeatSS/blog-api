@@ -1,85 +1,85 @@
-// src/controllers/postController.js
-
-const createPool = require("../config/db");
-const { validationResult } = require("express-validator");
-const cloudinary = require("cloudinary").v2;
-
-
 // Create a new blog post with dynamic blocks
+const { validationResult } = require('express-validator'); // Assuming you're using express-validator for validation
+const cloudinary = require('cloudinary').v2;
+const createPool = require('../config/db'); // Assuming you're using a MySQL pool connection
+
 exports.createPost = async (req, res) => {
   let { title, author_id, category_id, blocks } = req.body;
 
- // Parse blocks if they are in string form (optional if they're already an array)
- const parsedBlocks = typeof blocks === "string" ? JSON.parse(blocks) : blocks;
+  // Parse blocks if they are in string form
+  const parsedBlocks = typeof blocks === 'string' ? JSON.parse(blocks) : blocks;
 
- // Validate input
- const errors = validationResult(req);
- if (!errors.isEmpty()) {
-   return res.status(400).json({ errors: errors.array() });
+  // Validate input using express-validator
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-  
-  // Check if blocks exist and are valid
+
+  // Ensure blocks are an array
   if (!parsedBlocks || !Array.isArray(parsedBlocks)) {
     return res.status(400).json({ error: "'blocks' must be an array." });
   }
-  
+
   let connection;
   try {
     const pool = createPool;
     connection = await pool.getConnection();
     await connection.beginTransaction();
-    // const b64 = Buffer.from(req.file.buffer).toString("base64")
-    // let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-    // console.log("error here");
-    // const cldRes = await handleUpload(dataURI);
-    // console.log(cldRes);
-    // res.json(cldRes);
+
+    // Handle main image upload
     let mainImageUrl = null;
-    // console.log(req.files)
-    if (req.files.mainImage && req.files.mainImage[0]) {
-      const mainImageUploadResult = await cloudinary.uploader.upload_stream({
-        folder: "blog",
+    if (req.files && req.files['mainImage'] && req.files['mainImage'][0]) {
+      const mainImage = req.files['mainImage'][0];
+      const mainImageUploadResult = await cloudinary.uploader.upload(mainImage.path, {
+        folder: 'blog',
       });
       mainImageUrl = mainImageUploadResult.secure_url;
     }
+
     // Insert the post with title, main image, author, and category
     const [postResult] = await connection.query(
       `INSERT INTO posts (title, main_image, author_id, category_id) VALUES (?, ?, ?, ?)`,
-      [title, mainImageUrl , author_id, category_id]
+      [title, mainImageUrl, author_id, category_id]
     );
     const postId = postResult.insertId; // Get the inserted post ID
-    
-    // // Process content blocks (text or images)
+
+    // Process content blocks (text or images)
     const blockPromises = parsedBlocks.map(async (block, index) => {
-      if (block.type === "text") {
+      if (block.type === 'text') {
+        // Handle text blocks
         return connection.query(
-          "INSERT INTO content_blocks (post_id, block_type, content, position) VALUES (?, ?, ?, ?)",
-          [postId, "text", block.content, index + 1]
+          'INSERT INTO content_blocks (post_id, block_type, content, position) VALUES (?, ?, ?, ?)',
+          [postId, 'text', block.content, index + 1]
         );
-      } else if (block.type === "image" && block.file) {
-        const imageUploadResult = await cloudinary.uploader.upload(block.file, {
-          folder: "blog",
+      } else if (block.type === 'image' && req.files['images'][index]) {
+        // Handle image blocks
+        const imageFile = req.files['images'][index];
+        const imageUploadResult = await cloudinary.uploader.upload(imageFile.path, {
+          folder: 'blog',
         });
         return connection.query(
-          "INSERT INTO content_blocks (post_id, block_type, image_url, description, position) VALUES (?, ?, ?, ?, ?)",
-          [postId, "image",imageUploadResult.secure_url, block.description, index + 1]
+          'INSERT INTO content_blocks (post_id, block_type, image_url, description, position) VALUES (?, ?, ?, ?, ?)',
+          [postId, 'image', imageUploadResult.secure_url, block.description, index + 1]
         );
       }
     });
-      
-      await Promise.all(blockPromises);
-      await connection.commit();
-      
-      // res.status(201).json({ message: "Post created successfully", postId });
-      res.status(201).json({ message: "Post created successfully" });
-    } catch (error) {
-      if (connection) await connection.rollback();
-    console.log("Error creating post:", error);
-    res.status(500).json({ error: "Failed to create post" });
+
+    // Wait for all blocks to be inserted
+    await Promise.all(blockPromises);
+
+    // Commit the transaction
+    await connection.commit();
+
+    res.status(201).json({ message: 'Post created successfully',id:postId });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Error creating post:', error);
+    res.status(500).json({ error: 'Failed to create post' });
   } finally {
     if (connection) connection.release();
   }
 };
+
 
 exports.getPost = async (req, res) => {
   const { id } = req.params;
