@@ -22,6 +22,7 @@ const adminRoutes = require('../src/routes/adminRoutes');
 const analyticsRoutes = require('../src/routes/analyticsRoutes');
 const savedPostRoutes = require('../src/routes/savedPostRoutes');
 const searchRoutes = require('../src/routes/searchRoutes');
+const categoriesRoutes = require('../src/routes/categoryRoutes');
 // Create an Express instance
 const app = express();
 app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklocal, uniquelocal' : 'loopback');
@@ -34,10 +35,10 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 
 // Define allowed origins
 // Set up CORS with specific origin and credentials enabled
-app.use(cors({
-  origin: 'https://loomdo.vercel.app',  // Allow only this origin
-  credentials: true                     // Allow cookies and credentials
-}));
+// app.use(cors({
+//   origin: 'https://loomdo.vercel.app',  // Allow only this origin
+//   credentials: true                     // Allow cookies and credentials
+// }));
 
 // Enable preflight response handling for all routes
 app.options('*', cors());
@@ -61,6 +62,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/savedposts', savedPostRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/categories', categoriesRoutes);
 
 // Error handling for unhandled routes
 app.use((req, res) => {
