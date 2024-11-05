@@ -54,8 +54,10 @@ app.use(cors({
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  }
+  },
+  credentials: true // Enable Access-Control-Allow-Credentials
 }));
+
 // Middleware to parse JSON requests
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({limit: '500mb', extended: true}));
