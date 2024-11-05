@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@reduxjs/toolkit": "^2.3.0",
+    "axios": "^1.7.7",
     "basic-ftp": "^5.0.5",
     "bcrypt": "^5.1.1",
     "cloudinary": "^1.41.3",
@@ -26,7 +28,8 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
-    "mysql2": "^3.11.3"
+    "mysql2": "^3.11.3",
+    "react-redux": "^9.1.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.5"
