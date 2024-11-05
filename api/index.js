@@ -39,9 +39,23 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 //   origin: 'https://loomdo.vercel.app',  // Allow only this origin
 //   credentials: true                     // Allow cookies and credentials
 // }));
-
+const allowedOrigins = [
+  'http://localhost:3001',
+  'http://localhost:3000',
+  'https://loomdo.vercel.app'
+];
 // Enable preflight response handling for all routes
-app.options('*', cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 // Middleware to parse JSON requests
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({limit: '500mb', extended: true}));
