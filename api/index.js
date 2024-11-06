@@ -41,7 +41,6 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 // }));
 const allowedOrigins = [
   'http://localhost:3000',
-  'http://localhost:3001',
   'https://loomdo.vercel.app'
 ];
 // Enable preflight response handling for all routes
