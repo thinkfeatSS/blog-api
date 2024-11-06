@@ -39,9 +39,14 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 'loopback, linklo
 //   origin: 'https://loomdo.vercel.app',  // Allow only this origin
 //   credentials: true                     // Allow cookies and credentials
 // }));
-
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://loomdo.vercel.app'
+];
 // Enable preflight response handling for all routes
-app.use(cors());
+app.use(cors({
+    credentials: true // Enable Access-Control-Allow-Credentials
+}));
 
 // Middleware to parse JSON requests
 app.use(express.json({ limit: '500mb' }));
